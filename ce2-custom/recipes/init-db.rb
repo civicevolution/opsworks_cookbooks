@@ -1,4 +1,12 @@
-message "Hey this is my custom recipe"
+include_recipe "postgresql::server"
+include_recipe "database::postgresql"
+
+log "Hey this is my custom recipe"
+
+log "message" do
+  message "This is the message that will be added to the log AS A WARNING."
+  level :warn
+end
 
 =begin
 postgresql_connection_info = {
@@ -29,4 +37,4 @@ mysql_database 'baz' do
   connection mysql_connection_info
   action    :drop
 end
-=END
+=end
