@@ -1,3 +1,4 @@
+include_recipe "openssl"
 include_recipe "postgresql::server"
 include_recipe "database::postgresql"
 
@@ -8,7 +9,10 @@ log "message" do
   level :warn
 end
 
+log "password is #{ node['postgresql']['password']['postgres'] }"
+
 =begin
+
 postgresql_connection_info = {
     :host     => 'localhost',
     :port     => node['postgresql']['config']['port'],
@@ -24,6 +28,7 @@ postgresql_database_user 'disenfranchised' do
   password   'super_secret'
   action     :create
 end
+
 
 
 postgresql_database 'foo' do
