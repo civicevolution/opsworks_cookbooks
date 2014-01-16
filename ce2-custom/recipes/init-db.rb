@@ -1,5 +1,5 @@
 include_recipe "openssl"
-include_recipe "postgresql::server"
+#include_recipe "postgresql::server"
 include_recipe "database::postgresql"
 
 log "Hey this is my custom recipe"

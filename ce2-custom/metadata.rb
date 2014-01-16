@@ -10,7 +10,7 @@ recipe "ce2-custom::init-db", "DB initialization"
 
 depends "openssl"
 depends "database"
-depends "postgresql"
+#depends "postgresql"
 
 
 %w{ubuntu debian fedora suse amazon}.each do |os|
