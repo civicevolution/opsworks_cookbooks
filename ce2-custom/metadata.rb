@@ -8,8 +8,8 @@ version "0.0.1"
 recipe "ce2-custom::init-db", "DB initialization"
 
 
-depends "openssl"
-depends "database"
+#depends "openssl"
+#depends "database"
 #depends "postgresql"
 
 

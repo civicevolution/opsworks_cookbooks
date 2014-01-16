@@ -1,6 +1,6 @@
-include_recipe "openssl"
+#include_recipe "openssl"
 #include_recipe "postgresql::server"
-include_recipe "database::postgresql"
+#include_recipe "database::postgresql"
 
 log "Hey this is my custom recipe"
 
@@ -10,6 +10,8 @@ log "message" do
 end
 
 log "password is #{ node['postgresql']['password']['postgres'] }"
+
+log "^^^^^^ Damnit, just create the user myself"
 
 =begin
 
