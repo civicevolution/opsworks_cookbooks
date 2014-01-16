@@ -1,0 +1,64 @@
+define :createdb9, :user => 'postgres' do
+  db_name = params[:name].downcase
+  statement = %{psql -U postgres -h localhost -c "SELECT * FROM pg_database"}
+  owner = params[:owner]
+
+  if ['solo', 'db_master', 'eylocal'].include?(node[:instance_role])
+    execute "create database for #{db_name}" do
+      command %{psql -U postgres postgres -c \"CREATE DATABASE #{db_name} OWNER #{owner}\"}
+      not_if "#{statement} | grep #{db_name}"
+    end
+  end
+end
+
+define :createdb, :user => 'postgres' do
+  db_name = params[:name]
+  statement = %{su - postgres -c "psql -h localhost -c \\"SELECT * FROM pg_database\\""}
+  owner = params[:owner]
+
+  execute "create database for #{db_name}" do
+    command %{psql -U postgres postgres -c \"CREATE DATABASE #{db_name} OWNER #{owner}\"}
+
+    not_if "#{statement} | grep #{db_name}"
+  end
+
+  psql "grant permissions to #{owner} on #{db_name}" do
+    action :nothing
+    sql "grant all on database #{db_name} to #{owner}"
+
+    subscribes :run, resources(:execute => "createdb-#{db_name}"), :immediately
+  end
+
+  psql "alter-public-schema-owner-on-#{db_name}-to-#{owner}" do
+    action :nothing
+    sql "ALTER SCHEMA public OWNER TO #{owner}"
+
+    subscribes :run, resources(:psql => "grant permissions to #{owner} on #{db_name}"), :immediately
+  end
+end
+
+username = node.ssh_username
+password = node.ssh_password
+
+if ['solo', 'db_master', 'eylocal'].include?(node[:instance_role])
+  execute "create-db-user#{username}" do
+    command  %{psql -U postgres postgres -c \"CREATE USER #{username} with ENCRYPTED PASSWORD '#{password}' createdb\"}
+    not_if %{psql -U postgres -c "select * from pg_roles" | grep #{username}}
+  end
+
+  execute "alter-db-user-postgres" do
+    command %{psql -Upostgres postgres -c \"ALTER USER postgres with ENCRYPTED PASSWORD '#{password}'\"}
+    not_if %{psql -c "select pg_last_xlog_receive_location()" | grep "/"}
+  end
+
+  execute "alter-public-schema-owner-to-#{node[:owner_name]}" do
+    command %{psql -U postgres postgres -c \"ALTER SCHEMA public OWNER TO #{node[:owner_name]}\"}
+    not_if %{psql -c "select pg_last_xlog_receive_location()" | grep "/"}
+  end
+end
+
+node.apps.each do |app|
+  createdb9 app.database_name do
+    owner username
+  end
+end

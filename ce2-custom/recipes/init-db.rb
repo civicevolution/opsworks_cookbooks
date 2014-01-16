@@ -1,17 +1,47 @@
-#include_recipe "openssl"
-#include_recipe "postgresql::server"
-#include_recipe "database::postgresql"
-
-log "Hey this is my custom recipe"
+log "Initialize the database"
 
 log "message" do
-  message "This is the message that will be added to the log AS A WARNING."
+  message "password is #{ node['postgresql']['password']['postgres'] }"
   level :warn
 end
 
-log "password is #{ node['postgresql']['password']['postgres'] }"
+username = node[:deploy][:ce2_test][:database][:username]
 
-log "^^^^^^ Damnit, just create the user myself"
+log "create the user: #{username}"
+
+log "create the database"
+
+log "add the extension"
+
+=begin
+db_name = params[:name].downcase
+statement = %{psql -U postgres -h localhost -c "SELECT * FROM pg_database"}
+owner = params[:owner]
+
+execute "create database for #{db_name}" do
+  command %{psql -U postgres postgres -c \"CREATE DATABASE #{db_name} OWNER #{owner}\"}
+  not_if "#{statement} | grep #{db_name}"
+end
+
+
+execute "create-db-user#{username}" do
+  log "create-db-user"
+  #command  %{psql -U postgres postgres -c \"CREATE USER #{username} with ENCRYPTED PASSWORD '#{password}' createdb\"}
+  #not_if %{psql -U postgres -c "select * from pg_roles" | grep #{username}}
+end
+
+execute "alter-db-user-postgres" do
+  log "alter-db-user-postgres"
+  #command %{psql -Upostgres postgres -c \"ALTER USER postgres with ENCRYPTED PASSWORD '#{password}'\"}
+  #not_if %{psql -c "select pg_last_xlog_receive_location()" | grep "/"}
+end
+
+execute "alter-public-schema-owner-to-#{node[:owner_name]}" do
+  log "alter-public-schema-owner-to-"
+  #command %{psql -U postgres postgres -c \"ALTER SCHEMA public OWNER TO #{node[:owner_name]}\"}
+  #not_if %{psql -c "select pg_last_xlog_receive_location()" | grep "/"}
+end
+=end
 
 =begin
 
@@ -21,27 +51,4 @@ postgresql_connection_info = {
     :username => 'postgres',
     :password => node['postgresql']['password']['postgres']
 }
-
-
-
-# Create a postgresql user but grant no privileges
-postgresql_database_user 'disenfranchised' do
-  connection postgresql_connection_info
-  password   'super_secret'
-  action     :create
-end
-
-
-
-postgresql_database 'foo' do
-  connection postgresql_connection_info
-  action     :create
-end
-
-
-# Drop a database
-mysql_database 'baz' do
-  connection mysql_connection_info
-  action    :drop
-end
 =end
