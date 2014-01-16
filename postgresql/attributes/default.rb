@@ -20,6 +20,8 @@
 default['postgresql']['enable_pgdg_apt'] = false
 default['postgresql']['server']['config_change_notify'] = :restart
 
+node['postgresql']['password']['postgres'] = 'md54e8c502517555af0590d2f72b23f30ed'
+
 case node['platform']
   when "debian"
 
