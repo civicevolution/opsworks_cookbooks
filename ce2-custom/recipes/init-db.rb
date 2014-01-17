@@ -9,6 +9,8 @@ statement = %{psql -U postgres -h localhost -c "SELECT * FROM pg_database"}
 owner = username
 
 log "create the user: #{username}"
+
+=begin
 execute "create-db-user-#{username}" do
   command %{psql -U postgres postgres -c \"CREATE USER #{username} with ENCRYPTED PASSWORD '#{password}' CREATEDB NOCREATEUSER\"}
   not_if %{psql -U postgres -c "select * from pg_roles" | grep #{username}}
@@ -21,11 +23,10 @@ execute "create database for #{db_name}" do
 end
 
 execute "alter-db-user-postgres" do
-  log "alter-db-user-postgres"
   command %{psql -U postgres postgres -c \"ALTER USER postgres with ENCRYPTED PASSWORD '#{postgres_password}'\"}
   not_if %{psql -c "select pg_last_xlog_receive_location()" | grep "/"}
 end
 
 
 log "add the extension TBD"
-
+=end
