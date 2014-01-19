@@ -1,9 +1,9 @@
 log "Initialize the database"
 
-username = node[:deploy][:ce2_test][:database][:username]
-password = node[:deploy][:ce2_test][:database][:password]
+username = node[:deploy][:ce_ver_1][:database][:username]
+password = node[:deploy][:ce_ver_1][:database][:password]
 postgres_password = node['postgresql']['password']['postgres']
-db_name = node[:deploy][:ce2_test][:database][:database]
+db_name = node[:deploy][:ce_ver_1][:database][:database]
 statement = %{psql -U postgres -c "SELECT * FROM pg_database"}
 owner = username
 
