@@ -1,4 +1,4 @@
-log "^^^^^^ custom recipe ce2-custom::init-db"
+log "^^^^^^ v1-21-23:54 custom recipe ce2-custom::init-db"
 
 node[:deploy].each do |application, deploy|
   if deploy[:application_type] != 'rails'
