@@ -9,6 +9,7 @@ node[:redisio][:server].each do |server|
     owner "redis"
     group "redis"
     mode 0755
+    not_if { ::File.directory?("/var/run/redis/#{port}") }
   end
 
   template "/etc/monit.d/redis_#{port}.monitrc" do
@@ -19,6 +20,7 @@ node[:redisio][:server].each do |server|
     variables({
                   :port => port
               })
+    not_if { ::File.exists?("/etc/monit.d/redis_#{port}.monitrc") }
   end
 end
 

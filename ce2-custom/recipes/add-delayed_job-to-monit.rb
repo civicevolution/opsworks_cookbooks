@@ -12,9 +12,10 @@ node[:deploy].each do |application, deploy|
     owner "deploy"
     group "nobody"
     mode 0755
+    not_if { ::File.directory?("/var/run/delayed_jobs/#{application}") }
   end
 
-  template "/etc/monit.d/delayed_job.#{app_name}.monitrc" do
+  template "/etc/monit.d/delayed_job.#{application}.monitrc" do
     source "delayed_job.monitrc.erb"
     owner "root"
     group "root"
@@ -22,8 +23,9 @@ node[:deploy].each do |application, deploy|
     variables({
                   :app_name => application,
                   :owner => 'deploy',
-                  :worker_name => "delayed_job_#{app_name}"
+                  :worker_name => "delayed_job_#{application}"
               })
+    not_if { ::File.exists?("/etc/monit.d/delayed_job.#{application}.monitrc") }
   end
 end
 
