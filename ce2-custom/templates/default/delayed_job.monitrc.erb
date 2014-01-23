@@ -1,5 +1,5 @@
 check process <%= @worker_name %>
-with pidfile /var/run/delayed_jobs/<%= @app_name %>/delayed_job.pid
+with pidfile /var/run/delayed_job/<%= @app_name %>/delayed_job.pid
 start program = "/bin/su - <%= @owner %> -c 'RAILS_ENV=production /srv/www/<%= @app_name %>/current/bin/delayed_job --pid-dir=/var/run/delayed_job/<%= @app_name %> --prefix <%= @app_name %> start'"
 stop program = "/bin/su - <%= @owner %> -c 'RAILS_ENV=production /srv/www/<%= @app_name %>/current/bin/delayed_job --pid-dir=/var/run/delayed_job/<%= @app_name %> --prefix <%= @app_name %> stop'"
 if totalmem is greater than 200 MB for 2 cycles then restart      # eating up memory?
