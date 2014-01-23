@@ -1,4 +1,4 @@
-# Redis configuration file example
+# Redis configuration file example - FIXED
 
 # Note on units: when memory size is needed, it is possible to specifiy
 # it in the usual form of 1k 5GB 4M and so forth:
@@ -75,8 +75,7 @@ syslog-ident redis-<%= @name %>
 syslog-facility <%= "#{@syslogfacility}" %>
 
 # Set the number of databases. The default database is DB 0, you can select
-# a different one on a per-connection basis using SELECT
-<dbid> where
+# a different one on a per-connection basis using SELECT <dbid> where
 # dbid is a number between 0 and 'databases'-1
 databases <%= @databases %>
 
@@ -84,9 +83,7 @@ databases <%= @databases %>
 #
 # Save the DB on disk:
 #
-# save
-<seconds>
-<changes>
+# save <seconds> <changes>
 #
 # Will save the DB if both the given number of seconds and the given
 # number of write operations against the DB occurred.
@@ -141,9 +138,7 @@ dir <%= @datadir %>
 # so for example it is possible to configure the slave to save the DB with a
 # different interval, or to listen to another port, and so on.
 #
-# slaveof
-<ip>
-<port>
+# slaveof <ip> <port>
 <%= "slaveof #{@slaveof['address']} #{@slaveof['port']}" unless @slaveof.nil? %>
 
 # If the master is password protected (using the "requirepass" configuration
@@ -151,8 +146,7 @@ dir <%= @datadir %>
 # starting the replication synchronization process, otherwise the master will
 # refuse the slave request.
 #
-# masterauth
-<master-password>
+# masterauth <master-password>
 <%= "masterauth #{@masterauth}" unless @masterauth.nil? %>
 
 # When a slave lost the connection with the master, or when the replication
@@ -185,8 +179,7 @@ repl-timeout <%= @repltimeout %>
 
 ################################## SECURITY ###################################
 
-# Require clients to issue AUTH
-<PASSWORD> before processing any other
+# Require clients to issue AUTH <PASSWORD> before processing any other
 # commands. This might be useful in environments in which you do not trust
 # others with access to the host running redis-server.
 #
@@ -249,8 +242,7 @@ repl-timeout <%= @repltimeout %>
 # limit for maxmemory so that there is some free RAM on the system for slave
 # output buffers (but this is not needed if the policy is 'noeviction').
 #
-#maxmemory
-<bytes>
+#maxmemory <bytes>
 <%= "maxmemory #{@maxmemory}" unless @maxmemory.empty? %>
 
 # MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
