@@ -1,4 +1,4 @@
-node[:redisio][:server].each do |server|
+node[:redisio][:servers].each do |server|
 
   port = server[:port]
 
