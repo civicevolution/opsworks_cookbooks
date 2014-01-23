@@ -1,5 +1,5 @@
-check process redis_<%= @port =>
-                        with pidfile /var/run/redis/<%= @port =>/redis_<%= @port =>.pid
-  start program = "/etc/init.d/redis<%= @port => start"
-  stop program = "/etc/init.d/redis<%= @port => stop"
-  group redis
+check process redis_<%= @port %>
+with pidfile /var/run/redis/<%= @port %>/redis_<%= @port %>.pid
+start program = "/etc/init.d/redis<%= @port %> start"
+stop program = "/etc/init.d/redis<%= @port %> stop"
+group redis
