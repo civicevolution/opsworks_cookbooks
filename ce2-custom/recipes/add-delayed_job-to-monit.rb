@@ -7,7 +7,7 @@ node[:deploy].each do |application, deploy|
     next
   end
 
-  directory "/var/run/delayed_jobs/#{application}" do
+  directory "/var/run/delayed_job/#{application}" do
     recursive true
     owner "deploy"
     group "nobody"
