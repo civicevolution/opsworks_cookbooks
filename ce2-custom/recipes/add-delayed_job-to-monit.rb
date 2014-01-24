@@ -12,7 +12,7 @@ node[:deploy].each do |application, deploy|
     owner "deploy"
     group "nobody"
     mode 0755
-    not_if { ::File.directory?("/var/run/delayed_jobs/#{application}") }
+    not_if { ::File.directory?("/var/run/delayed_job/#{application}") }
   end
 
   template "/etc/monit.d/delayed_job.#{application}.monitrc" do
