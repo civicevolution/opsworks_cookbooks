@@ -8,7 +8,7 @@
 
 # redis is on the same machine as db
 
-
+app_name = "ce2_ver_1" # get this from stack json
 faye_directory = '/opt/faye'
 faye_server = "#{faye_directory}/server-redis.js"
 faye_port = 8000
@@ -17,7 +17,7 @@ redis_port = 6379
 
 faye_user = 'deploy'
 node_path = "/usr/local/bin/node"
-faye_log_with_path = "/srv/www/ce2_ver_1/shared/log/faye-server-redis.log"
+faye_log_with_path = "/srv/www/#{app_name}/shared/log/faye-server-redis.log"
 
 
 #pid_directory = '/var/run/faye'
@@ -89,7 +89,6 @@ template "/etc/init/faye.conf" do
 end
 
 
-=begin
 #
 # Modify /etc/nginx/sites-available/ce2_ver_1
 # Add upstream block
@@ -97,67 +96,90 @@ end
 
 # Find next line(s) that starts with server
 # and retrieve the host
-# create a fragment from the template, with the host in it
-# insert the fragment right after the commented out server line
+# create a fragment from the template
+# insert the fragment
+
+nginx_conf_path = "/etc/nginx/sites-available"
+filepath_nginx_conf = "#{nginx_conf_path}/#{app_name}"
+faye_upstream_frag = "#{nginx_conf_path}/upstream.frag"
+faye_location_frag = "#{nginx_conf_path}/location.frag"
 
 
-filepath_haproxy_frag = "/etc/haproxy.frag.cfg"
-filepath_haproxy = "/etc/haproxy.cfg"
+nginx_conf = IO.read(filepath_nginx_conf)
+add_upstream = !nginx_conf.match(/upstream faye_upstream/)
+add_location = !nginx_conf.match(/location \/faye/)
 
-# Don't process haproxy.cfg if it already has backend nodejs_server
-haproxy = IO.read(filepath_haproxy)
+if add_upstream
+  Chef::Log.info "Yes, I need to add faye_upstream to #{filepath_nginx_conf}"
 
-if !haproxy.match(/nodejs_server/)
-  Chef::Log.info "Yes, I need to process haproxy.cfg"
-  # first create the fragement I will need
-  # then read it into a variable to insert into the actual haproxy.cfg
-  template filepath_haproxy_frag do
-    source "haproxy.cfg.frag.erb"
+  # create frags for upstream and location
+  template faye_upstream_frag do
+    source "upstream.frag.erb"
     owner "root"
     group "root"
     mode 0644
-    variables({
-                  :master_app_server_host => master_app_server_host,
-                  :node_js_port => node_js_port
-              })
   end
 
-  ruby_block "insert the nodejs compliant front end into haproxy" do
+  ruby_block "insert the nodejs compliant upstream into nginx" do
     block do
-      haproxy_frag = IO.read(filepath_haproxy_frag)
-      File.open(filepath_haproxy, "w") do |file|
-        haproxy.split(/\n/).each do |line|
-          if line.match(/listen\s*cluster\s*:80/i)
-            file.puts "# #{line}"
-            file.puts "###################\n# Custom code inserted by Chef to route realtime to nodejs\n"
-            file.puts haproxy_frag
-          else
-            file.puts line
+      upstream_frag = IO.read(faye_upstream_frag)
+      nginx_conf = IO.read(filepath_nginx_conf)
+      File.open(nginfilepath_nginx_confx_conf, "w") do |file|
+        nginx_conf.split(/\n/).each do |line|
+          if line.match(/\A\s*upstream\s/i)
+            file.puts "###################\n# Custom code inserted by Chef to route faye to nodejs\n"
+            file.puts faye_upstream_frag
           end
+          file.puts line
         end
       end # end file
     end # block
     action :create
   end # ruby_block
 
-  execute "Restart haproxy" do
-    command %Q{
-            /etc/init.d/haproxy reload
-          }
-    only_if { FileTest.exists?(filepath_haproxy_frag) }
-  end
-
-  execute "Delete the cfg frag" do
-    command "rm #{filepath_haproxy_frag}"
+  execute "Delete the upstream frag" do
+    command "rm #{faye_upstream_frag}"
   end
 end
-=end
 
 
-# sudo su deploy
-# cd /opt/faye
-# node server-redis.js
-#
+if add_location
+  Chef::Log.info "Yes, I need to add faye_location to #{filepath_nginx_conf}"
+
+# create frags for location
+  template faye_location_frag do
+    source "location.frag.erb"
+    owner "root"
+    group "root"
+    mode 0644
+  end
+
+  ruby_block "insert the nodejs compliant location into nginx" do
+    block do
+      upstream_frag = IO.read(faye_upstream_frag)
+      nginx_conf = IO.read(filepath_nginx_conf)
+      File.open(filepath_nginx_conf, "w") do |file|
+        nginx_conf.split(/\n/).each do |line|
+          if line.match(/\A\s*location\s+\//i)
+            file.puts "###################\n# Custom code inserted by Chef to route faye to nodejs\n"
+            file.puts faye_location_frag
+          end
+          file.puts line
+        end
+      end # end file
+    end # block
+    action :create
+  end # ruby_block
+
+  execute "Delete the location frag" do
+    command "rm #{faye_location_frag}"
+  end
+end
+
+execute "Restart nginx" do
+  command "/etc/init.d/nginx reload"
+  only_if { add_upstream || add_location }
+end
 
 
 =begin
