@@ -48,7 +48,8 @@ end
 # cd /opt/faye
 # npm install faye
 
-execute "install NPM package faye into #{faye_directory}" do
+#execute "install NPM package faye into #{faye_directory}" do
+execute "install-fy" do
   cwd faye_directory
   command "npm install faye"
   not_if { ::File.directory?("#{faye_directory}/node_modules/#{faye}") }
@@ -56,7 +57,8 @@ end
 
 # npm install faye-redis
 
-execute "npm install faye-redis" do
+#execute "npm install faye-redis" do
+execute "install-fy-re" do
   cwd faye_directory
   command "npm install faye-redis"
   not_if { ::File.directory?("#{faye_directory}/node_modules/#{faye-redis}") }
