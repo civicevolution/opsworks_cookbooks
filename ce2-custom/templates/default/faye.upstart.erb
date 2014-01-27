@@ -1,0 +1,13 @@
+description "Faye Node.js"
+author "brian@civicevolution.org"
+
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on shutdown
+
+respawn
+respawn limit 5 60
+
+script
+cd /opt/faye
+exec sudo -u <%= faye_user %> NODE_ENV=production <%= @node_path %> <%= faye_server %> >> <%= faye_log_with_path 2>&1
+                                                                                              end script

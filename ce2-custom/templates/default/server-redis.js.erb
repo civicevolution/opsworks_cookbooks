@@ -1,0 +1,99 @@
+var http = require('http'),
+    faye = require('faye'),
+    fayeRedis = require('faye-redis');
+
+
+// set up logging for debugging
+faye.Logging.logLevel = 'debug';
+var logger = function (msg) {
+  console.log(msg)
+}
+faye.logger = {}
+faye.logger['fatal'] = logger;
+faye.logger['error'] = logger;
+faye.logger['warn'] = logger;
+//faye.logger['info'] = logger;
+//faye.logger['debug'] = logger;
+
+
+var server = http.createServer();
+
+var bayeux = new faye.NodeAdapter({
+  mount: '/faye',
+  timeout: 45,
+  engine: {
+    type: fayeRedis,
+    host: "<%= @redis_host %>",
+    port: "<%= @redis_port %>"
+  }
+});
+
+$redis = bayeux._server._engine._engine._redis
+
+bayeux.on('subscribe', function (clientId, channel) {
+  console.log("^^^^ EVENT subscribe for clientId: " + clientId + " on channel " + channel)
+  // event listener logic
+  // Broadcast the roster or just the client that subscribed
+  bayeux.getClient().publish(channel, {
+    action: "presence-notification",
+    text: "clientId: " + clientId + " has subscribed",
+    inboxSize: 34
+  });
+})
+
+bayeux.on('unsubscribe', function (clientId, channel) {
+  console.log("^^^^ EVENT UNsubscribe for clientId: " + clientId + " on channel " + channel)
+  // event listener logic
+  // Broadcast the roster or just the client that left
+  bayeux.getClient().publish(channel, {
+    action: "presence-notification",
+    text: "clientId: " + clientId + " has unsubscribed",
+    inboxSize: 34
+  });
+})
+
+bayeux.on('disconnect', function (clientId) {
+  console.log("^^^^ EVENT disconnect for clientId: " + clientId)
+  // event listener logic
+  $redis.del("faye_client_id:" + clientId + ":ror_session_id");
+  // is client still reported as a member of any channels? Unsubscribe fires before disconnect
+})
+
+var serverAuth = {
+  incoming: function (message, callback) {
+
+    if (message.channel == '/meta/subscribe') {
+      //console.log( "#### incoming extension for AUTH subscribe with message:");
+      //console.log(message)
+
+      ror_session_id = message.ext.ror_session_id
+      subscription = message.subscription
+      //console.log("Can ror_session_id: " + ror_session_id + " subscribe to " + subscription)
+
+      $redis.sismember("ror_sessions:" + ror_session_id + ":subscribe.acl", subscription,
+          function (err, result) {
+            //console.log("YYYY redis.sismember callback result: " + result);
+            if (result == 1) {
+              console.log("Subscribe to " + subscription + " is allowed for ror_session_id: " + ror_session_id);
+
+              $redis.set("faye_client_id:" + message.clientId + ":ror_session_id", ror_session_id);
+
+            } else {
+              console.log("Subscribe to " + subscription + " is NOT allowed for ror_session_id: " + ror_session_id);
+              message.error = '403::Authentication required';
+            }
+
+            return callback(message);
+
+          });
+      return;
+    }
+
+    return callback(message);
+  }
+};
+
+bayeux.addExtension(serverAuth);
+
+bayeux.attach(server);
+server.listen(<%= @faye_port %>);
