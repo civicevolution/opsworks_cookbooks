@@ -124,7 +124,7 @@ if add_upstream
     block do
       upstream_frag = IO.read(faye_upstream_frag)
       nginx_conf = IO.read(filepath_nginx_conf)
-      File.open(nginfilepath_nginx_confx_conf, "w") do |file|
+      File.open(filepath_nginx_conf, "w") do |file|
         nginx_conf.split(/\n/).each do |line|
           if line.match(/\A\s*upstream\s/i)
             file.puts "###################\n# Custom code inserted by Chef to route faye to nodejs\n"
@@ -156,13 +156,13 @@ if add_location
 
   ruby_block "insert the nodejs compliant location into nginx" do
     block do
-      upstream_frag = IO.read(faye_upstream_frag)
+      location_frag = IO.read(faye_location_frag)
       nginx_conf = IO.read(filepath_nginx_conf)
       File.open(filepath_nginx_conf, "w") do |file|
         nginx_conf.split(/\n/).each do |line|
           if line.match(/\A\s*location\s+\//i)
             file.puts "###################\n# Custom code inserted by Chef to route faye to nodejs\n"
-            file.puts faye_location_frag
+            file.puts location_frag
           end
           file.puts line
         end
