@@ -48,6 +48,15 @@ end
 # cd /opt/faye
 # npm install faye
 
+
+npm_package "faye" do
+  version "1.0.1"
+  path faye_directory
+  action :install_local
+end
+
+
+=begin
 #execute "install NPM package faye into #{faye_directory}" do
 execute "install-fy" do
   cwd faye_directory
@@ -63,6 +72,8 @@ execute "install-fy-re" do
   command "npm install faye-redis"
   not_if { ::File.directory?("#{faye_directory}/node_modules/#{faye-redis}") }
 end
+=end
+
 
 #
 # Add my server-redis.js file
