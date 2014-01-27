@@ -9,5 +9,6 @@ respawn limit 5 60
 
 script
 cd /opt/faye
-exec sudo -u <%= @faye_user %> NODE_ENV=production <%= @node_path %> <%= @faye_server %> >> <%= @faye_log_with_path 2>&1
-                                                                                                end script
+exec sudo -u <%= @faye_user %> NODE_ENV=production <%= @node_path %> <%= @faye_server %> >> <%= @faye_log_with_path %>:w
+2>&1
+end script
