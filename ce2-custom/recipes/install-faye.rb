@@ -11,7 +11,6 @@
 
 faye_directory = '/opt/faye'
 faye_server = "#{faye_directory}/server-redis.js"
-pid_directory = '/var/run/faye'
 faye_port = 8000
 redis_host = "localhost" # get from stack json
 redis_port = 6379
@@ -21,6 +20,7 @@ node_path = "/usr/local/bin/node"
 faye_log_with_path = "/srv/www/ce2_ver_1/shared/log/faye-server-redis.log"
 
 
+#pid_directory = '/var/run/faye'
 #pid_file = '/var/run/faye/faye.pid'
 #log_file = '/var/log/engineyard/juggernaut.log'
 #chef_file = '/etc/chef/dna.json'
@@ -42,37 +42,19 @@ directory faye_directory do
   not_if { ::File.directory?(faye_directory) }
 end
 
-
 #
 # Install Faye
-# cd /opt/faye
-# npm install faye
-
 
 npm_package "faye" do
-  version "1.0.1"
+  #version "1.0.1"
   path faye_directory
   action :install_local
 end
 
-
-=begin
-#execute "install NPM package faye into #{faye_directory}" do
-execute "install-fy" do
-  cwd faye_directory
-  command "npm install faye"
-  not_if { ::File.directory?("#{faye_directory}/node_modules/#{faye}") }
+npm_package "faye-redis" do
+  path faye_directory
+  action :install_local
 end
-
-# npm install faye-redis
-
-#execute "npm install faye-redis" do
-execute "install-fy-re" do
-  cwd faye_directory
-  command "npm install faye-redis"
-  not_if { ::File.directory?("#{faye_directory}/node_modules/#{faye-redis}") }
-end
-=end
 
 
 #
@@ -91,8 +73,9 @@ template "#{faye_server}" do
             })
 end
 
+
 # Run from upstart script
-template "/etc/init/faye" do
+template "/etc/init/faye.conf" do
   source "faye.upstart.erb"
   owner "root"
   group "root"
@@ -205,6 +188,12 @@ case node[:instance_role]
 end
 =end
 
+=begin
+execute "monit reload" do
+  action :run
+end
+=end
+
 
 =begin
 # add log_rotate
@@ -230,28 +219,5 @@ end
 =end
 
 
-=begin
-# do I need an init.d file to run through monit?
-# install init.d
-template "/etc/init.d/juggernaut" do
-  source "juggernaut.init.d.erb"
-  owner "root"
-  group "root"
-  mode 0755
-  variables({
-    :pid_file => pid_file,
-    :redis_host => redis_host,
-    :redis_port => redis_port,
-    :redis_user => redis_user,
-    :redis_pwd => redis_pwd,
-    :log_file => log_file
-  })
-end
-=end
 
-=begin
-execute "monit reload" do
-  action :run
-end
-=end
 
