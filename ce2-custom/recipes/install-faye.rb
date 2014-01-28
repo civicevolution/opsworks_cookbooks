@@ -138,7 +138,7 @@ if add_upstream
   end # ruby_block
 
   execute "Delete the upstream frag" do
-    command "rm #{faye_upstream_frag}"
+    command "rm #{faye_upstream_frag_file}"
   end
 end
 
@@ -172,7 +172,7 @@ if add_location
   end # ruby_block
 
   execute "Delete the location frag" do
-    command "rm #{faye_location_frag}"
+    command "rm #{faye_location_frag_file}"
   end
 end
 
