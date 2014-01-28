@@ -101,8 +101,8 @@ end
 
 nginx_conf_path = "/etc/nginx/sites-available"
 filepath_nginx_conf = "#{nginx_conf_path}/#{app_name}"
-faye_upstream_frag = "#{nginx_conf_path}/upstream.frag"
-faye_location_frag = "#{nginx_conf_path}/location.frag"
+faye_upstream_frag_file = "#{nginx_conf_path}/upstream.frag"
+faye_location_frag_file = "#{nginx_conf_path}/location.frag"
 
 
 nginx_conf = IO.read(filepath_nginx_conf)
@@ -113,7 +113,7 @@ if add_upstream
   Chef::Log.info "Yes, I need to add faye_upstream to #{filepath_nginx_conf}"
 
   # create frags for upstream and location
-  template faye_upstream_frag do
+  template faye_upstream_frag_file do
     source "upstream.frag.erb"
     owner "root"
     group "root"
@@ -122,13 +122,13 @@ if add_upstream
 
   ruby_block "insert the nodejs compliant upstream into nginx" do
     block do
-      upstream_frag = IO.read(faye_upstream_frag)
+      upstream_frag = IO.read(faye_upstream_frag_file)
       nginx_conf = IO.read(filepath_nginx_conf)
       File.open(filepath_nginx_conf, "w") do |file|
         nginx_conf.split(/\n/).each do |line|
           if line.match(/\A\s*upstream\s/i)
-            file.puts "###################\n# Custom code inserted by Chef to route faye to nodejs\n"
-            file.puts faye_upstream_frag
+            file.puts "###################\n# Custom upstream inserted by Chef to route faye to nodejs\n"
+            file.puts upstream_frag
           end
           file.puts line
         end
@@ -147,7 +147,7 @@ if add_location
   Chef::Log.info "Yes, I need to add faye_location to #{filepath_nginx_conf}"
 
 # create frags for location
-  template faye_location_frag do
+  template faye_location_frag_file do
     source "location.frag.erb"
     owner "root"
     group "root"
@@ -156,12 +156,12 @@ if add_location
 
   ruby_block "insert the nodejs compliant location into nginx" do
     block do
-      location_frag = IO.read(faye_location_frag)
+      location_frag = IO.read(faye_location_frag_file)
       nginx_conf = IO.read(filepath_nginx_conf)
       File.open(filepath_nginx_conf, "w") do |file|
         nginx_conf.split(/\n/).each do |line|
-          if line.match(/\A\s*location\s+\//i)
-            file.puts "###################\n# Custom code inserted by Chef to route faye to nodejs\n"
+          if line.match(/\A\s*location\s+\/[\s\{]/i)
+            file.puts "###################\n# Custom location inserted by Chef to route faye to nodejs\n"
             file.puts location_frag
           end
           file.puts line
