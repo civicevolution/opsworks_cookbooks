@@ -99,16 +99,23 @@ end
 # create a fragment from the template
 # insert the fragment
 
-if ::File.exists?("/etc/nginx/sites-available/#{app_name}")
-  nginx_conf_path = "/etc/nginx/sites-available"
-  filepath_nginx_conf = "#{nginx_conf_path}/#{app_name}"
+nginx_conf_path = "/etc/nginx/sites-available"
+filepath_nginx_conf = "#{nginx_conf_path}/#{app_name}"
+
+Chef::Log.info "^^^^^^^^^^^^^^^ check for file: #{filepath_nginx_conf}"
+
+
+if ::File.exists?(filepath_nginx_conf)
   faye_upstream_frag_file = "#{nginx_conf_path}/upstream.frag"
   faye_location_frag_file = "#{nginx_conf_path}/location.frag"
-
 
   nginx_conf = IO.read(filepath_nginx_conf)
   add_upstream = !nginx_conf.match(/upstream faye_upstream/)
   add_location = !nginx_conf.match(/location \/faye/)
+
+  Chef::Log.info "add_upstream: #{add_upstream}, add_location: #{add_location}"
+
+  Chef::Log.info "File: #{filepath_nginx_conf} is #{nginx_conf}"
 
   if add_upstream
     Chef::Log.info "Yes, I need to add faye_upstream to #{filepath_nginx_conf}"
