@@ -181,6 +181,9 @@ execute "Restart nginx" do
   only_if { add_upstream || add_location }
 end
 
+execute "Start faye" do
+  command "start faye"
+end
 
 =begin
 #create pidfile directory
