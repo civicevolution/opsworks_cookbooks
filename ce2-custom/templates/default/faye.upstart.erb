@@ -9,6 +9,15 @@ respawn limit 5 60
 
 script
 cd /opt/faye
-exec sudo -u <%= @faye_user %> NODE_ENV=production <%= @node_path %> <%= @faye_server %> >> <%= @faye_log_with_path %>:w
-2>&1
+exec sudo -u <%= @faye_user %> NODE_ENV=production <%= @node_path %> <%= @faye_server %> >> <%= @faye_log_with_path %> 2>&1
+end script
+
+pre-start script
+# Date format same as (new Date()).toISOString() for consistency
+echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> <%= @faye_log_with_path %>
+end script
+
+pre-stop script
+rm /var/run/yourprogram.pid
+echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> <%= @faye_log_with_path %>
 end script

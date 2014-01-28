@@ -185,6 +185,7 @@ end
 
 execute "Start faye" do
   command "start faye"
+  not_if("ps aux | grep faye/server-redis.js | grep -v grep | grep -v sudo")
 end
 
 =begin
