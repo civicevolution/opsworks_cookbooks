@@ -102,20 +102,25 @@ end
 nginx_conf_path = "/etc/nginx/sites-available"
 filepath_nginx_conf = "#{nginx_conf_path}/#{app_name}"
 
-Chef::Log.info "^^^^^^^^^^^^^^^ check for file: #{filepath_nginx_conf}"
+#Chef::Log.info "^^^^^^^^^^^^^^^ check for file: #{filepath_nginx_conf}"
 
 
 if ::File.exists?(filepath_nginx_conf)
   faye_upstream_frag_file = "#{nginx_conf_path}/upstream.frag"
   faye_location_frag_file = "#{nginx_conf_path}/location.frag"
 
-  nginx_conf = IO.read(filepath_nginx_conf)
-  add_upstream = !nginx_conf.match(/upstream faye_upstream/)
-  add_location = !nginx_conf.match(/location \/faye/)
+  #nginx_conf = IO.read(filepath_nginx_conf)
+  #add_upstream = !nginx_conf.match(/upstream faye_upstream/)
+  #add_location = !nginx_conf.match(/location \/faye/)
+
+  # if the file has previously been modified, it will be reset by chef
+  # so I need to update the file each time deploy is run
+  # Note, the modifications aren't run till near the end of deploy, but these tests are run much earlier
+  add_upstream = add_location = true
 
   Chef::Log.info "add_upstream: #{add_upstream}, add_location: #{add_location}"
 
-  Chef::Log.info "File: #{filepath_nginx_conf} is #{nginx_conf}"
+  #Chef::Log.info "File: #{filepath_nginx_conf} is #{nginx_conf}"
 
   if add_upstream
     Chef::Log.info "Yes, I need to add faye_upstream to #{filepath_nginx_conf}"
