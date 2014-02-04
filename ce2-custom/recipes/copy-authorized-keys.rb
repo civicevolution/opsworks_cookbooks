@@ -6,6 +6,6 @@ execute "Copy authorized_keys" do
 end
 
   execute "Chown authorized_keys" do
-    command "chown #{deploy[:user]} /home/deploy/.ssh/authorized_keys"
+    command "chown deploy /home/deploy/.ssh/authorized_keys"
   end
 #end
