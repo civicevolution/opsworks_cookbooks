@@ -1,0 +1,7 @@
+check process nodejs with pidfile "/var/run/yourprogram.pid"
+    start program = "/sbin/start yourprogram"
+    stop program  = "/sbin/stop yourprogram"
+    if failed port 8000 protocol HTTP
+        request /
+        with timeout 10 seconds
+        then restart
