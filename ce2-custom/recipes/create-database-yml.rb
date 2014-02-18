@@ -4,7 +4,7 @@ node[:deploy].each do |application, deploy|
 
   log "^^^^^^ Feb 5 14:16 application: #{application}, deploy[:application_type]: #{deploy[:application_type]}"
 
-  if deploy[:application_type] != 'rails'
+  if deploy[:application_type] != 'rails' || node[:deploy][application][:rails_env] != 'production'
     log("Skipping ce2-custom::init-db for application #{application} as it is not a Rails app")
     next
   end
