@@ -4,7 +4,7 @@ node[:deploy].each do |application, deploy|
 
   log "^^^^^^ Install wkhtmltopdf Feb 18 10:55 application: #{application}, deploy[:application_type]: #{deploy[:application_type]}"
 
-  if deploy[:application_type] != 'rails' || node[:deploy][application][:rails_env] != 'production'
+  if deploy[:application_type] != 'rails' #|| node[:deploy][application][:rails_env] != 'production'
     log("Skipping ce2-custom::install-wkhtmltopdf for application #{application} as it is not a Rails app")
     next
   end
