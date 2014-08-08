@@ -13,18 +13,19 @@ node[:deploy].each do |application, deploy|
 
 
   # download wkhtmltopdf
-  remote_file "#{wkhtmltopdf_dir}/wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz" do
-    source "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.0/wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz"
+  remote_file "#{wkhtmltopdf_dir}/wkhtmltox-0.12.1.tar.bz2" do
+    source "http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1.tar.bz2"
+    # old https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.0/wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz"
     owner 'root'
     group 'root'
     mode 0644
     backup 0
-    not_if { FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz") }
+    not_if { FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-0.12.1.tar.bz2") }
   end
 
   execute "unarchive wkhtmltopdf" do
-    command "cd #{wkhtmltopdf_dir} && tar xvf wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz && sync"
-    not_if { FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-linux-amd64_0.12.0-03c001d") }
+    command "cd #{wkhtmltopdf_dir} && tar xvf wkhtmltox-0.12.1.tar.bz2 && sync"
+    not_if { FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-0.12.1") }
   end
 
   execute "move wkhtmltopdf" do
@@ -38,8 +39,8 @@ node[:deploy].each do |application, deploy|
   end
 
   execute "remove tar file for wkhtmltopdf" do
-    command "cd #{wkhtmltopdf_dir} && rm -f wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz"
-    not_if { !FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-linux-amd64_0.12.0-03c001d.tar.xz") }
+    command "cd #{wkhtmltopdf_dir} && rm -f wkhtmltox-0.12.1.tar.bz2"
+    not_if { !FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-0.12.1.tar.bz2") }
   end
 
   execute "remove misc files for wkhtmltopdf" do
