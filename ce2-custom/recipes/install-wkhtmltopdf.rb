@@ -11,7 +11,6 @@ node[:deploy].each do |application, deploy|
 
   wkhtmltopdf_dir = "/usr/local/bin"
 
-
   # download wkhtmltopdf
   remote_file "#{wkhtmltopdf_dir}/wkhtmltox-0.12.1_linux-centos6-amd64.rpm" do
     source "http://downloads.sourceforge.net/project/wkhtmltopdf/0.12.1/wkhtmltox-0.12.1_linux-centos6-amd64.rpm"
@@ -22,11 +21,11 @@ node[:deploy].each do |application, deploy|
     not_if { FileTest.exists?("#{wkhtmltopdf_dir}/wkhtmltox-0.12.1_linux-centos6-amd64.rpm") }
   end
 
-  #sudo yum install wkhtmltox-0.12.1_linux-centos6-amd64.rpm
-
-  yum_package "wkhtmltox-0.12.1_linux-centos6-amd64.rpm" do
+  rpm_package "wkhtmltox" do
+    source "#{wkhtmltopdf_dir}/wkhtmltox-0.12.1_linux-centos6-amd64.rpm"
     action :install
     not_if { ::File.exists?("/usr/local/bin/wkhtmltopdf") }
   end
+
 
 end
